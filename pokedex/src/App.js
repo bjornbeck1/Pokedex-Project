@@ -21,7 +21,7 @@ export default function App() {
 
         Promise.all(pokemonDetailsPromises)
           .then((pokemonDetails) => {
-            setPokemonList(pokemonDetails);  // Set the Pokémon details to state
+            setPokemonList(pokemonDetails);  // set pokemon details
             setLoading(false);  
           })
           .catch((err) => {
@@ -45,7 +45,7 @@ export default function App() {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <h1>Pokemon List</h1>
+      <h1>Pokedex</h1>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
         {pokemonList.map((pokemon) => (
           <div key={pokemon.id} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
