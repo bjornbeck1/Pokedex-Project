@@ -6,26 +6,7 @@ export default function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    
-    // pagination setup
-    const Pagination = ({
-      postsPerPage,
-      totalPosts,
-      setCurrPage,
-      currPage
-    }) => {
-      const pageNumbers = [];
-
-      for (let i = 1; i <= Math.ceil(totalPost / postsPerPage); i++) {
-        pageNumbers.push(i);
-      }
-
-      const paginate = (pageNumber) => {
-        setCurrPage(pageNumber);
-      }
-    }
-    
-    fetch('https://pokeapi.co/api/v2/pokemon?limit=20')  // get 20 pokemon (temporary, offset to get next 20)
+    fetch('https://pokeapi.co/api/v2/pokemon')  // get 20 pokemon (temporary, offset to get next 20)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch Pokémon list'); // throw error if trouble getting list
