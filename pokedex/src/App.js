@@ -4,9 +4,12 @@ export default function App() {
   const [pokemonList, setPokemonList] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
+  const maxPokemon = 1302; // API limit
 
   useEffect(() => {
-    fetch('https://pokeapi.co/api/v2/pokemon')  // get 20 pokemon (temporary, offset to get next 20)
+    fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch Pokémon list'); // throw error if trouble getting list
@@ -33,7 +36,19 @@ export default function App() {
         setError(err.message);  // error if fetching list fails
         setLoading(false);
       });
-  }, []); 
+  }, [offset]); // reruns if offset changes
+
+  const previousPage = () => {
+    if (offset >= limit) {
+      setOffset(offset - limit);
+    }
+  };
+
+  const nextPage = () => {
+    if (offset + limit < maxPokemon) {
+      setOffset(offset + limit);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;  // loading state
@@ -56,6 +71,15 @@ export default function App() {
             <p>Weight: {pokemon.weight}</p>
           </div>
         ))}
+      </div>
+      <div>
+        <button onClick={previousPage} disabled={offset === 0}>
+          Previous Page
+        </button>
+        <span style={{ margin: '0 10px' }}> Page {offset / limit + 1} </span>
+        <button onClick={nextPage} disabled={offset + limit >= maxPokemon}>
+          Next Page
+        </button>
       </div>
     </div>
   );
