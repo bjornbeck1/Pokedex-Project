@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import { Range } from 'react-range';
+import './App.css';
 
 export default function App() {
   const [pokemonList, setPokemonList] = useState([]);
@@ -11,6 +13,10 @@ export default function App() {
     heightRange: [0, 20],
     weightRange: [0, 1000],
   });
+  const minHeight = 0;
+  const maxHeight = 20;
+  const minWeight = 0;
+  const maxWeight = 1000;
 
   const limit = 20;
   const maxPokemon = 1302; // API limit
@@ -75,6 +81,8 @@ export default function App() {
     return matchesType && matchesHeight && matchesWeight;
   });
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
   if (loading) {
     return <div>Loading...</div>;  // loading state
   }
@@ -87,7 +95,7 @@ export default function App() {
     <div style={{ textAlign: 'center' }}>
       <h1>Pokédex</h1>
 
-      <div style={{ textAlign: 'left', margin: '20px' }}>
+      <div className="filters">
         <h3>Filters</h3>
 
         <label>Type: </label>
@@ -103,81 +111,103 @@ export default function App() {
           ))}
         </select>
 
-        <div style={{ marginTop: '10px' }}>
-          <label>Height Range: {filters.heightRange[0]} - {filters.heightRange[1]}</label><br />
-          <input
-            type="range"
-            min="0"
-            max="20"
-            value={filters.heightRange[0]}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                heightRange: [Number(e.target.value), filters.heightRange[1]],
-              })
+        <div className="slider-container" style={{ marginTop: '10px' }}>
+          <label>Height Range: {filters.heightRange[0]} - {filters.heightRange[1]}</label>
+          <Range
+            step={1}
+            min={minHeight}
+            max={maxHeight}
+            values={filters.heightRange}
+            onChange={(values) =>
+              setFilters({ ...filters, heightRange: values })
             }
-          />
-          <input
-            type="range"
-            min="0"
-            max="20"
-            value={filters.heightRange[1]}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                heightRange: [filters.heightRange[0], Number(e.target.value)],
-              })
-            }
+            renderTrack={({ props, children }) => (
+              <div
+                {...props}
+                style={{
+                  ...props.style,
+                  height: '6px',
+                  width: '100%',
+                  backgroundColor: '#ccc',
+                  margin: '10px 0'
+                }}
+              >
+                {children}
+              </div>
+            )}
+            renderThumb={({ props }) => (
+              <div
+                {...props}
+                style={{
+                  ...props.style,
+                  height: '20px',
+                  width: '20px',
+                  backgroundColor: '#999',
+                  borderRadius: '50%',
+                }}
+              />
+            )}
           />
         </div>
 
-        <div style={{ marginTop: '10px' }}>
-          <label>Weight Range: {filters.weightRange[0]} - {filters.weightRange[1]}</label><br />
-          <input
-            type="range"
-            min="0"
-            max="1000"
-            value={filters.weightRange[0]}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                weightRange: [Number(e.target.value), filters.weightRange[1]],
-              })
+        <div className="slider-container" style={{ marginTop: '10px' }}>
+          <label>Weight Range: {filters.weightRange[0]} - {filters.weightRange[1]}</label>
+          <Range
+            step={10}
+            min={minWeight}
+            max={maxWeight}
+            values={filters.weightRange}
+            onChange={(values) =>
+              setFilters({ ...filters, weightRange: values })
             }
-          />
-          <input
-            type="range"
-            min="0"
-            max="1000"
-            value={filters.weightRange[1]}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                weightRange: [filters.weightRange[0], Number(e.target.value)],
-              })
-            }
+            renderTrack={({ props, children }) => (
+              <div
+                {...props}
+                style={{
+                  ...props.style,
+                  height: '6px',
+                  width: '100%',
+                  backgroundColor: '#ccc',
+                  margin: '10px 0'
+                }}
+              >
+                {children}
+              </div>
+            )}
+            renderThumb={({ props }) => (
+              <div
+                {...props}
+                style={{
+                  ...props.style,
+                  height: '20px',
+                  width: '20px',
+                  backgroundColor: '#999',
+                  borderRadius: '50%',
+                }}
+              />
+            )}
           />
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+      <div className="pokemon-grid">
         {filteredPokemonList.map((pokemon) => (
-          <div key={pokemon.id} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '8px' }}>
-            <h3>{pokemon.name}</h3>
-            <img src={pokemon.sprites.front_default} alt={pokemon.name} style={{ width: '100px', height: '100px' }} />
-            <p>Type: {pokemon.types[0].type.name}</p>
+          <div key={pokemon.id} className="card">
+            <h3>{capitalize(pokemon.name)}</h3>
+            <img src={pokemon.sprites.front_default} alt={pokemon.name} />
+            <p>Type: {capitalize(pokemon.types[0].type.name)}</p>
             <p>Height: {pokemon.height}</p>
             <p>Weight: {pokemon.weight}</p>
           </div>
         ))}
       </div>
 
-      <div>
-        <button onClick={previousPage} disabled={offset === 0}>
+      <div className="pagination">
+        <button onClick={previousPage} className="card" disabled={offset === 0}>
           Previous Page
         </button>
         <span style={{ margin: '0 10px' }}> Page {offset / limit + 1} </span>
-        <button onClick={nextPage} disabled={offset + limit >= maxPokemon}>
+        <button onClick={nextPage} className="card" disabled={offset + limit >= maxPokemon}>
           Next Page
         </button>
       </div>
@@ -185,11 +215,7 @@ export default function App() {
   );
 }
 
-// extensions:
-// filters: conditional logic, i.e. only display "grass" type or only display pokemon with height >= 7
+// to-do:
 // deployment: github pages, follow guide
 // dark/light mode: render property conditionally, possibly make own css file or use mui
-// --- use themeprovider on mui for start
-
-// goals:
-// styling + extensions
+//  - use themeprovider on mui for start
