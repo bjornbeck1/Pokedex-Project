@@ -23,7 +23,7 @@ export default function App() {
   const maxWeight = 1000;
 
   const limit = 20;
-  const maxPokemon = 1302; // API limit
+  const maxPokemon = 200; // temporary fix, 1302 overloads
 
   const [mode, setMode] = useState('light');
 
@@ -68,34 +68,37 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`)
+    setLoading(true);
+    fetch(`https://pokeapi.co/api/v2/pokemon?limit=${maxPokemon}&offset=0`)
       .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch Pokémon list'); // throw error if trouble getting list
-        }
+        if (!response.ok) throw new Error('Failed to fetch Pokémon list');
         return response.json();
       })
       .then((data) => {
-        // fetch details for each pokemon in the list
         const pokemonDetailsPromises = data.results.map((pokemon) =>
           fetch(pokemon.url).then((res) => res.json())
         );
 
         Promise.all(pokemonDetailsPromises)
           .then((pokemonDetails) => {
-            setPokemonList(pokemonDetails);  // set pokemon details
-            setLoading(false);  
+            setPokemonList(pokemonDetails);  // full dataset
+            setLoading(false);
           })
           .catch((err) => {
-            setError(err.message);  // error state
+            setError(err.message);
             setLoading(false);
           });
       })
       .catch((err) => {
-        setError(err.message);  // error if fetching list fails
+        setError(err.message);
         setLoading(false);
       });
-  }, [offset]); // reruns if offset changes
+  }, []);
+
+
+  useEffect(() => {
+    setPage(0);
+  }, [filters]);
 
   const previousPage = () => { // go to previous page
     if (offset >= limit) {
@@ -119,6 +122,12 @@ export default function App() {
 
     return matchesType && matchesHeight && matchesWeight;
   });
+
+  const totalPages = Math.ceil(filteredPokemonList.length / limit);
+  const [page, setPage] = useState(0);
+
+  const paginatedList = filteredPokemonList.slice(page * limit, (page + 1) * limit);
+
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
@@ -257,7 +266,7 @@ export default function App() {
         </div>
 
         <div className="pokemon-grid">
-          {filteredPokemonList.map((pokemon) => (
+          {paginatedList.map((pokemon) => (
             <div key={pokemon.id} className="card">
               <h3>{capitalize(pokemon.name)}</h3>
               <img src={pokemon.sprites.front_default} alt={pokemon.name} />
@@ -273,11 +282,11 @@ export default function App() {
         </div>
 
         <div className="pagination">
-          <button onClick={previousPage} className="card" disabled={offset === 0}>
+          <button onClick={() => setPage(page - 1)} disabled={page === 0} className="card">
             Previous Page
           </button>
           <span style={{ margin: '0 10px' }}> Page {offset / limit + 1} </span>
-          <button onClick={nextPage} className="card" disabled={offset + limit >= maxPokemon}>
+          <button onClick={() => setPage(page + 1)} disabled={page + 1 >= totalPages} className="card">
             Next Page
           </button>
         </div>
