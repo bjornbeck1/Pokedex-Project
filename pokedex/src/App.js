@@ -14,16 +14,16 @@ export default function App() {
   const [types, setTypes] = useState([]);
   const [filters, setFilters] = useState({
     type: '',
-    heightRange: [0, 20],
+    heightRange: [0, 50],
     weightRange: [0, 1000],
   });
   const minHeight = 0;
-  const maxHeight = 20;
+  const maxHeight = 50;
   const minWeight = 0;
   const maxWeight = 1000;
 
   const limit = 20;
-  const maxPokemon = 200; // temporary fix, 1302 overloads
+  const maxPokemon = 400; // temporary fix, 1302 overloads
 
   const [mode, setMode] = useState('light');
 
@@ -285,7 +285,7 @@ export default function App() {
           <button onClick={() => setPage(page - 1)} disabled={page === 0} className="card">
             Previous Page
           </button>
-          <span style={{ margin: '0 10px' }}> Page {offset / limit + 1} </span>
+          <span style={{ margin: '0 10px' }}> Page {page + 1} of {totalPages} </span>
           <button onClick={() => setPage(page + 1)} disabled={page + 1 >= totalPages} className="card">
             Next Page
           </button>
